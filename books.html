@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Books API</title>
+  </head>
+  <body>
+    <h1>Google Books API</h1>
+    <ul id="bookList"></ul>
+
+    <script>
+      var bookList = document.getElementById("bookList");
+      var key = "AIzaSyDBIVOYlCpCNHHBksbmxnwcTuQVpr03OnQ";
+      var url = "https://www.googleapis.com/books/v1/volumes?q=nondual&key=";
+
+      // Fetch data from the Google Books API
+      fetch(url + key)
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("Network response was not ok " + response.statusText);
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          if (!data.items || data.items.length === 0) {
+            bookList.innerHTML = "<li>No books found for the given query.</li>";
+            return;
+          }
+
+          // Loop through the items in the data
+          data.items.forEach(function (item) {
+            var title = item.volumeInfo.title || "No Title Available";
+            var author = item.volumeInfo.authors
+              ? item.volumeInfo.authors[0]
+              : "Unknown Author";
+            var link = item.volumeInfo.canonicalVolumeLink || "#";
+            var image = item.volumeInfo.imageLinks
+              ? item.volumeInfo.imageLinks.smallThumbnail
+              : null;
+
+            // Create the list item
+            var newItem = `
+              <li>
+                <h2>${title}</h2>
+                <p>Author: ${author}</p>
+                <a href="${link}" target="_blank">View Book</a><br>
+                ${image ? `<img src="${image}" alt="Book Thumbnail">` : ""}
+              </li>
+            `;
+
+            // Append the new item to the list
+            bookList.innerHTML += newItem;
+          });
+        })
+        .catch(function (error) {
+          console.error("Error fetching data:", error);
+          bookList.innerHTML =
+            "<li>There was an error fetching data. Please try again later.</li>";
+        });
+    </script>
+  </body>
+</html>
